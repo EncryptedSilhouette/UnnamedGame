@@ -14,11 +14,11 @@ public class FPSCameraControler : MonoBehaviour
 
     private void Awake()
     {
-        if (PlayerPrefs.HasKey("x_sens") && PlayerPrefs.HasKey("y_sens")) 
+        if (PlayerPrefs.HasKey("x_sensitivity") && PlayerPrefs.HasKey("y_sensitivity")) 
         {
             Debug.Log("err");
-            XSensitivity = PlayerPrefs.GetFloat("x_sens");
-            YSensitivity = PlayerPrefs.GetFloat("y_sens");
+            XSensitivity = PlayerPrefs.GetFloat("x_sensitivity");
+            YSensitivity = PlayerPrefs.GetFloat("y_sensitivity");
         }
     }
 

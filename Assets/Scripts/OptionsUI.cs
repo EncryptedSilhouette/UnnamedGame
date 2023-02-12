@@ -1,26 +1,46 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class OptionsUI : MonoBehaviour
 {
     [SerializeField]
-    TextMeshPro XValueText;
+    private TMP_InputField _xSensitivityInputField;
     [SerializeField]
-    Slider XSlider;
-    [SerializeField]
-    TextMeshPro YValueText;
-    [SerializeField]
-    Slider YSlider;
+    private TMP_InputField _ySensitivityInputField;
+
+    private void Awake()
+    {
+        _xSensitivityInputField.text = PlayerPrefs.HasKey("x_sensitivity") ? PlayerPrefs.GetFloat("x_sensitivity").ToString() : _xSensitivityInputField.text = 1.00f.ToString();
+        _ySensitivityInputField.text = PlayerPrefs.HasKey("y_sensitivity") ? PlayerPrefs.GetFloat("y_sensitivity").ToString() : _ySensitivityInputField.text = 1.00f.ToString();
+
+        _xSensitivityInputField.onValueChanged.AddListener((input) => 
+        {
+            if (float.TryParse(input, out float val)) 
+            {
+                val = Mathf.Clamp((float) Math.Round(val, 2, MidpointRounding.AwayFromZero), 00.01f, 99.99f);
+                PlayerPrefs.SetFloat("x_sensitivity", val);
+                _xSensitivityInputField.SetTextWithoutNotify(val.ToString());
+            }
+            else _xSensitivityInputField.SetTextWithoutNotify(PlayerPrefs.HasKey("x_sensitivity") ? PlayerPrefs.GetFloat("x_sensitivity").ToString() : _xSensitivityInputField.text = 1.00f.ToString());
+        });
+        _ySensitivityInputField.onValueChanged.AddListener((input) => 
+        {
+            if (float.TryParse(input, out float val))
+            {
+                val = Mathf.Clamp((float) Math.Round(val, 2, MidpointRounding.AwayFromZero), 00.01f, 99.99f);
+                PlayerPrefs.SetFloat("y_sensitivity", val);
+                _ySensitivityInputField.SetTextWithoutNotify(val.ToString());
+            }
+            else _ySensitivityInputField.SetTextWithoutNotify(PlayerPrefs.HasKey("y_sensitivity") ? PlayerPrefs.GetFloat("y_sensitivity").ToString() : _ySensitivityInputField.text = 1.00f.ToString());
+        });
+    }
 
     void Start()
     {
-        YSlider.onValueChanged.AddListener((x) => XValueText.text = $"X Sensitivity: {x}") ;
+       
     }
 
-    // Update is called once per frame
     void Update()
     {
         
