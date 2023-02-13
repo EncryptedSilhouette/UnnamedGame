@@ -2,24 +2,45 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    //Vars
     public float MovementSpeed = 5;
-    public float JumpForce = 11;
+    public float JumpForce = 3.5f;
 
-    private Vector2 MoveDirection => _gameControls.PlayerControls.Movement.ReadValue<Vector2>().normalized;
+    private bool _isGrounded = true;
+    private bool _isStunned = false;
+    private bool _canMoveInAir = false;
+    private bool _carryVelocity = false;
+    private Vector3 _movement = Vector3.zero;
 
-    private bool isGrounded = true;
-    private bool carryVelocity = false;
-    private Vector3 movement = Vector3.zero;
+    private Ray _forwardFacingRay;
+    private RaycastHit _forwardFacingRayCheck;
+    private RaycastHit _groundRayCheck;
+    private RaycastHit _forwardGroundRayCheck;
 
     //Refs
     private Camera _camera;
     private Rigidbody _rigidbody;
+    private CapsuleCollider _collider;
     private GameControls _gameControls;
+
+    //Properties
+    private bool CanMove => (_isGrounded || _canMoveInAir) && !_isStunned;
+    private Vector3 MoveDirection
+    {
+        get
+        {
+            Vector3 dir = _gameControls.PlayerControls.Movement.ReadValue<Vector2>();
+            dir.z = dir.y;
+            dir.y = 0;
+            return dir.normalized;
+        }
+    }
 
     private void Start()
     {
         _camera = Camera.main;
         _rigidbody = GetComponent<Rigidbody>();
+        _collider = GetComponentInChildren<CapsuleCollider>();    
 
         _gameControls = InputManager.InputManagerSingleton.GameControls;
         _gameControls.PlayerControls.Enable();
@@ -27,51 +48,61 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        carryVelocity = true;
+        PreformChecks();
         Rotate();
         Move();
         Jump();
         ApplyVelocity();
     }
 
+    private void PreformChecks() 
+    {
+        //_forwardFacingRay = new Ray()
+
+        Physics.Raycast(_forwardFacingRay);
+        Physics.Raycast(_rigidbody.transform.position, Vector3.down, out _groundRayCheck);
+        Physics.Raycast(_rigidbody.transform.position, MoveDirection, out _forwardGroundRayCheck);
+
+        //Debug.Log(_groundRayCheck.distance);
+        if (_groundRayCheck.distance <= _collider.height / 2 + 0.05f)
+        {
+            _isGrounded = true;
+            _carryVelocity = false;
+        }
+        else
+        {
+            _isGrounded = false;
+            _carryVelocity = true;
+        }
+    }
+
     private void Rotate() => _rigidbody.rotation = Quaternion.Euler(0, _camera.transform.rotation.eulerAngles.y, 0);
 
     private void Move() 
     {
-        float scale;
-        movement = (transform.right * MoveDirection.x + transform.forward * MoveDirection.y) * MovementSpeed;
-
-        if (carryVelocity && MovementSpeed != 0) 
+        if (!CanMove) 
         {
-            scale = 1 - _rigidbody.velocity.magnitude / MovementSpeed;
-            movement *= scale;
-        }
-        movement.y = 0;
-    }
+            _movement = Vector3.zero;
+            return;
+        } 
 
-    private void ApplyVelocity() 
-    {
-        Debug.Log($"(1) Movement: {movement.magnitude}, Velocity: {_rigidbody.velocity.magnitude}, sum: {movement.magnitude + _rigidbody.velocity.magnitude}");
-        if (carryVelocity) _rigidbody.velocity += movement;
-        else _rigidbody.velocity = movement + Vector3.up * _rigidbody.velocity.y;
-        Debug.Log($"(2) Velocity: {_rigidbody.velocity.magnitude}");
-    } 
+        _movement = (transform.right * MoveDirection.x + transform.forward * MoveDirection.z) * MovementSpeed;
+        _movement.y = 0;
+
+        if (_carryVelocity && MovementSpeed != 0) _movement *= 1 - Mathf.Min(_rigidbody.velocity.magnitude / MovementSpeed, 1);
+    }
 
     private void Jump() 
     {
-        RaycastHit hit;
-        if (!Physics.Raycast(_rigidbody.transform.position, Vector3.down, out hit, 1.1f))
+        if (_gameControls.PlayerControls.Jump.IsPressed() && _rigidbody.velocity.y <= 0 && _isGrounded)
         {
-            isGrounded = false;
-            Debug.Log(isGrounded);
-            return;
-        }
-
-        isGrounded = true;
-        if (_gameControls.PlayerControls.Jump.IsPressed() && _rigidbody.velocity.y <= 0)
-        {
-            //Debug.Log("Jump");
             _rigidbody.velocity += Vector3.up * JumpForce;
         }
+    }
+
+    private void ApplyVelocity()
+    {
+        if (_carryVelocity) _rigidbody.velocity += _movement;
+        else _rigidbody.velocity = _movement + Vector3.up * _rigidbody.velocity.y;
     }
 }

@@ -10,6 +10,12 @@ public class FPSCameraControler : MonoBehaviour
         cinemachinePOV.m_HorizontalAxis.m_MaxSpeed = InputManager.InputManagerSingleton.XSensitivity * 0.125f;
         cinemachinePOV.m_VerticalAxis.m_MaxSpeed = InputManager.InputManagerSingleton.YSensitivity * 0.125f;
 
+        InputManager.InputManagerSingleton.onControlsChanged.AddListener(() => 
+        {
+            cinemachinePOV.m_HorizontalAxis.m_MaxSpeed = InputManager.InputManagerSingleton.XSensitivity * 0.125f;
+            cinemachinePOV.m_VerticalAxis.m_MaxSpeed = InputManager.InputManagerSingleton.YSensitivity * 0.125f;
+        });
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

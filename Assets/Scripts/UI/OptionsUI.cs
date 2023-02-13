@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 
@@ -14,21 +13,23 @@ public class OptionsUI : MonoBehaviour
         _xSensitivityInputField.text = PlayerPrefs.HasKey("x_sensitivity") ? PlayerPrefs.GetFloat("x_sensitivity").ToString() : _xSensitivityInputField.text = 1.00f.ToString();
         _ySensitivityInputField.text = PlayerPrefs.HasKey("y_sensitivity") ? PlayerPrefs.GetFloat("y_sensitivity").ToString() : _ySensitivityInputField.text = 1.00f.ToString();
 
-        _xSensitivityInputField.onValueChanged.AddListener((input) => 
+        _xSensitivityInputField.onEndEdit.AddListener((input) => 
         {
+            Debug.Log("editedText");
             if (float.TryParse(input, out float val)) 
             {
                 InputManager.InputManagerSingleton.XSensitivity = val;
-                _xSensitivityInputField.SetTextWithoutNotify(val.ToString());
+                _xSensitivityInputField.SetTextWithoutNotify(InputManager.InputManagerSingleton.XSensitivity.ToString());
             }
             else _xSensitivityInputField.SetTextWithoutNotify(PlayerPrefs.HasKey("x_sensitivity") ? PlayerPrefs.GetFloat("x_sensitivity").ToString() : 1.00f.ToString());
         });
-        _ySensitivityInputField.onValueChanged.AddListener((input) => 
+        _ySensitivityInputField.onEndEdit.AddListener((input) => 
         {
+            Debug.Log("editedText");
             if (float.TryParse(input, out float val))
             {
                 InputManager.InputManagerSingleton.YSensitivity = val;
-                _ySensitivityInputField.SetTextWithoutNotify(val.ToString());
+                _ySensitivityInputField.SetTextWithoutNotify(InputManager.InputManagerSingleton.XSensitivity.ToString());
             }
             else _ySensitivityInputField.SetTextWithoutNotify(PlayerPrefs.HasKey("y_sensitivity") ? PlayerPrefs.GetFloat("y_sensitivity").ToString() : 1.00f.ToString());
         });
