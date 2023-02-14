@@ -81,7 +81,6 @@ public class PlayerController : MonoBehaviour
 
     private void Move() 
     {
-        Debug.Log($"can move: {CanMove}, {_carryVelocity}"); 
         if (!CanMove) 
         {
             _movement = Vector3.zero;
@@ -89,13 +88,12 @@ public class PlayerController : MonoBehaviour
         } 
 
         _movement = (transform.right * MoveDirection.x + transform.forward * MoveDirection.z) * MovementSpeed;
-        _movement.y = 0;
 
-        if (_carryVelocity && MovementSpeed != 0)
+        _carryVelocity = true;
+        if (_carryVelocity) 
         {
-            Debug.Log($"(1): {_movement}. (2) {_rigidbody.velocity.magnitude / MovementSpeed}, (3) {1 - _rigidbody.velocity.magnitude / MovementSpeed}");
-            _movement *= 1 - Mathf.Clamp(_rigidbody.velocity.magnitude / MovementSpeed, -1, 1);
-            Debug.Log(_movement);
+            _movement.x = Mathf.Clamp(_movement.x - _rigidbody.velocity.x, _movement.x > 0 ? 0 : _movement.x, _movement.x > 0 ? _movement.x : 0);
+            _movement.z = Mathf.Clamp(_movement.z - _rigidbody.velocity.z, _movement.z > 0 ? 0 : _movement.z, _movement.z > 0 ? _movement.z : 0);
         }
     }
 
