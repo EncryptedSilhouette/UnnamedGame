@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        _canMoveInAir = true;
         _camera = Camera.main;
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponentInChildren<CapsuleCollider>();    
@@ -80,6 +81,7 @@ public class PlayerController : MonoBehaviour
 
     private void Move() 
     {
+        Debug.Log($"can move: {CanMove}, {_carryVelocity}"); 
         if (!CanMove) 
         {
             _movement = Vector3.zero;
@@ -89,7 +91,12 @@ public class PlayerController : MonoBehaviour
         _movement = (transform.right * MoveDirection.x + transform.forward * MoveDirection.z) * MovementSpeed;
         _movement.y = 0;
 
-        if (_carryVelocity && MovementSpeed != 0) _movement *= 1 - Mathf.Min(_rigidbody.velocity.magnitude / MovementSpeed, 1);
+        if (_carryVelocity && MovementSpeed != 0)
+        {
+            Debug.Log($"(1): {_movement}. (2) {_rigidbody.velocity.magnitude / MovementSpeed}, (3) {1 - _rigidbody.velocity.magnitude / MovementSpeed}");
+            _movement *= 1 - Mathf.Clamp(_rigidbody.velocity.magnitude / MovementSpeed, -1, 1);
+            Debug.Log(_movement);
+        }
     }
 
     private void Jump() 
