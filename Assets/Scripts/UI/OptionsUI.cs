@@ -18,8 +18,8 @@ public class OptionsUI : MonoBehaviour
             Debug.Log("editedText");
             if (float.TryParse(input, out float val)) 
             {
-                InputManager.InputManagerSingleton.XSensitivity = val;
-                _xSensitivityInputField.SetTextWithoutNotify(InputManager.InputManagerSingleton.XSensitivity.ToString());
+                InputManager.XSensitivity = val;
+                _xSensitivityInputField.SetTextWithoutNotify(InputManager.XSensitivity.ToString());
             }
             else _xSensitivityInputField.SetTextWithoutNotify(PlayerPrefs.HasKey("x_sensitivity") ? PlayerPrefs.GetFloat("x_sensitivity").ToString() : 1.00f.ToString());
         });
@@ -28,8 +28,8 @@ public class OptionsUI : MonoBehaviour
             Debug.Log("editedText");
             if (float.TryParse(input, out float val))
             {
-                InputManager.InputManagerSingleton.YSensitivity = val;
-                _ySensitivityInputField.SetTextWithoutNotify(InputManager.InputManagerSingleton.XSensitivity.ToString());
+                InputManager.YSensitivity = val;
+                _ySensitivityInputField.SetTextWithoutNotify(InputManager.XSensitivity.ToString());
             }
             else _ySensitivityInputField.SetTextWithoutNotify(PlayerPrefs.HasKey("y_sensitivity") ? PlayerPrefs.GetFloat("y_sensitivity").ToString() : 1.00f.ToString());
         });

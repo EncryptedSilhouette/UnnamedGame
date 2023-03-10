@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5313143704821163592}
   - component: {fileID: 5313143704821163595}
-  - component: {fileID: 1417309010431374303}
   m_Layer: 0
   m_Name: CoreManager
   m_TagString: Untagged
@@ -45,21 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7b5de2166c8a584dbb477f500c98bb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _spawnPlayer: 1
   _spawnPosition: {x: 0, y: 1, z: 0}
   _playerPrefab: {fileID: 6365882495878698861, guid: 2e6956b05f12c2a47b3bae00e2668aac,
     type: 3}
---- !u!114 &1417309010431374303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5313143704821163594}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b1e7e924067992469e7d282a29fcedf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _overrideSavedValue: 0
-  _xSensitivity: 1
-  _ySensitivity: 1

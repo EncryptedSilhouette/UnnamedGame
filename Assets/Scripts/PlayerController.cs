@@ -7,19 +7,10 @@ public class PlayerController : MonoBehaviour
     public float MovementSpeed = 5;
     public float JumpForce = 3.5f;
 
-    private float _jumpWait;
     private bool _isGrounded = true;
     private bool _hasJumped = false;
-    private bool _isStunned = false;
-    private bool _allowAirMovement = true;
-    private string _state = "idle";
-    private string _lastState = "idle";
-
-    private Ray _forwardFacingRay;
-    private RaycastHit _forwardFacingRayCheck;
-    private RaycastHit _groundRayCheck;
-    private RaycastHit _forwardGroundRayCheck;
     private Vector3 _movement = Vector3.zero;
+    private RaycastHit _groundRayCheck;
 
     //Refs
     private Rigidbody _rigidbody;
@@ -27,9 +18,8 @@ public class PlayerController : MonoBehaviour
     private GameControls _gameControls;
 
     //Properties
-    private bool CanMove => (_isGrounded || _allowAirMovement) && !_isStunned;
-    private bool CanJump => CanMove && _isGrounded && !_hasJumped && _jumpWait < Time.time;
-    private bool CarryVelocity => (_isStunned || _allowAirMovement) && !_isGrounded;
+    private bool CarryVelocity => !_isGrounded;
+
     private Vector3 MoveDirection
     {
         get
@@ -47,11 +37,9 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        _jumpWait = Time.time;
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponentInChildren<CapsuleCollider>();    
-
-        _gameControls = InputManager.InputManagerSingleton.GameControls;
+        _gameControls = InputManager._gameControls;
         _gameControls.PlayerControls.Enable();
     }
 
@@ -61,33 +49,18 @@ public class PlayerController : MonoBehaviour
         Move();
         Jump();
         ApplyVelocity();
-
-        if (_lastState != _state)
-        {
-            onStateChanged?.Invoke(_state);
-        }
-        _lastState = _state;
     }
 
     private void PreformChecks() 
     {
         Physics.Raycast(_rigidbody.transform.position, Vector3.down, out _groundRayCheck);
-        Physics.Raycast(_rigidbody.transform.position, MoveDirection, out _forwardGroundRayCheck);
 
-        if (_groundRayCheck.distance <= _collider.height / 2 + 0.2f) _isGrounded = true;
+        if (_groundRayCheck.distance <= (_collider.height / 2) + 0.125f) _isGrounded = true;
         else _isGrounded = false;
     }
 
     private void Move() 
     {
-        if (!CanMove) 
-        {
-            _state = "idle";
-            _movement = Vector3.zero;
-            return;
-        }
-
-        _state = "walking";
         _movement = (transform.right * MoveDirection.x + transform.forward * MoveDirection.z) * MovementSpeed * (CarryVelocity ? 0.5f : 1);
 
         if (CarryVelocity) 
@@ -107,15 +80,13 @@ public class PlayerController : MonoBehaviour
 
     private void Jump() 
     {
-        if (!_isGrounded) _state = "falling";
-        if (_gameControls.PlayerControls.Jump.IsPressed() && _rigidbody.velocity.y <= 0 && CanJump)
+        if (!_isGrounded) return;
+        if (_gameControls.PlayerControls.Jump.IsPressed() && !_hasJumped)
         {
-            _rigidbody.velocity += Vector3.up * JumpForce;
-            _jumpWait = Time.time + 0.5f;
             _hasJumped = true;
-            _state = "hasJumped";
+            _movement += Vector3.up * JumpForce;
         }
-        else if (!_gameControls.PlayerControls.Jump.IsPressed()) _hasJumped = false;
+        else _hasJumped = false;
     }
 
     private void ApplyVelocity()

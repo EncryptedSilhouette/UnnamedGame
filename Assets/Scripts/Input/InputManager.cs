@@ -2,73 +2,42 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class InputManager : MonoBehaviour
+static class InputManager
 {
-    public static InputManager InputManagerSingleton { get; private set; }
+    private static float _xSensitivity = 1;
+    private static float _ySensitivity = 1;
 
-    [SerializeField]
-    private bool _overrideSavedValue = false;
-    [SerializeField]
-    private float _xSensitivity = 1;
-    [SerializeField]
-    private float _ySensitivity = 1;
+    public static GameControls _gameControls { get; private set; }
+    public static UnityEvent _onControlsChanged { get; private set; }
 
-    private GameControls _gameControls;
-
-    //Events
-    public UnityEvent onControlsChanged { get; private set; }
-
-    public GameControls GameControls
+    static InputManager() 
     {
-        get
-        {
-            if (_gameControls is null) _gameControls = new GameControls();
-            return _gameControls;
-        }
-        private set 
-        {
-            _gameControls = value;
-            onControlsChanged?.Invoke();
-        } 
+        _xSensitivity = PlayerPrefs.GetFloat("x_sensitivity");
+        _ySensitivity = PlayerPrefs.GetFloat("y_sensitivity");
+
+        _gameControls = new();
+        _onControlsChanged = new();
+        _onControlsChanged.AddListener(() => PlayerPrefs.SetFloat("x_sensitivity", _xSensitivity));
+        _onControlsChanged.AddListener(() => PlayerPrefs.SetFloat("y_sensitivity", _ySensitivity));
     }
 
-    public float XSensitivity 
+    public static float XSensitivity 
     {
         get => _xSensitivity;
         set 
         {
             _xSensitivity = Mathf.Clamp((float) Math.Round(value, 2, MidpointRounding.AwayFromZero), 00.01f, 99.99f);
-            PlayerPrefs.SetFloat("x_sensitivity", _xSensitivity);
-            onControlsChanged?.Invoke();
+            _onControlsChanged?.Invoke();
         }
     }
 
-    public float YSensitivity
+    public static float YSensitivity
     {
-        get => _xSensitivity;
+        get => _ySensitivity;
         set
         {
             _ySensitivity = Mathf.Clamp((float) Math.Round(value, 2, MidpointRounding.AwayFromZero), 00.01f, 99.99f);
-            PlayerPrefs.SetFloat("y_sensitivity", _ySensitivity);
-            onControlsChanged?.Invoke();
+            _onControlsChanged?.Invoke();
         }
-    }
-
-    private void Awake()
-    {
-        InputManagerSingleton = this;
-        onControlsChanged = new UnityEvent();
-
-        if (!PlayerPrefs.HasKey("x_sensitivity") || _overrideSavedValue) XSensitivity = _xSensitivity;
-        if (!PlayerPrefs.HasKey("y_sensitivity") || _overrideSavedValue) YSensitivity = _ySensitivity;
-
-        if (_overrideSavedValue) return;
-        if (PlayerPrefs.HasKey("x_sensitivity")) XSensitivity = PlayerPrefs.GetFloat("x_sensitivity");
-        if (PlayerPrefs.HasKey("y_sensitivity")) YSensitivity = PlayerPrefs.GetFloat("y_sensitivity");
-    }
-
-    void Update()
-    {
-        
     }
 }
